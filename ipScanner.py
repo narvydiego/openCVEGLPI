@@ -7,15 +7,19 @@ Modulo para Lectura de Direcciones IP en los activos de la MicroRed en base a la
 from scapy.all import ARP, Ether, srp
 
 def ipScanner(assets, ipRanges):
-    mac = assets['mac']
-    for ipRange in ipRanges:
-        arp = ARP(pdst = ipRange)
-        ether = Ether(dst = "ff:ff:ff:ff:ff:ff")
-        packet = ether/arp
-        result = srp(packet, timeout = 3, verbose = 0)[0]
-        # Searching for the MAC address in the responses
-        for sent, received in result:
-            if received.hwsrc == mac:
-                return received.psrc
-            
-    return "No IP found for this MAC address"
+    for asset in assets:
+        if 'mac' in asset:
+            macAddress = asset['mac']
+            ipRespose = []
+            for mac in macAddress:
+                for ipRange in ipRanges:
+                    arp = ARP(pdst = ipRange)
+                    ether = Ether(dst = "ff:ff:ff:ff:ff:ff")
+                    packet = ether/arp
+                    result = srp(packet, timeout = 3, verbose = 0)[0]
+                    # Buscando la direccion IP en las respuestas
+                    for sent, received in result:
+                        if received.hwsrc == mac:
+                            ipRespose.append(received.psrc)
+            asset['ip'] = ipRespose
+    return assets

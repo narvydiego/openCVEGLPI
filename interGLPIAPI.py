@@ -88,7 +88,7 @@ def data_assets_glpi(assetsGLPI, category, headersGLPI):
 
 def interGLPIAPI(urlGLPI, appTokenGLPI, userToken):
     # Categoria de activos en GLPI
-    categories = ['Computer', 'networkequipment', 'Peripheral', 'Phone', 'Printer', 'Software', 'Storage', 'User', 'VirtualMachine']
+    categories = ['Computer', 'networkequipment', 'Peripheral', 'Software', 'VirtualMachine']
     sessionTokenGLPI = get_session_token(appTokenGLPI, userToken, urlGLPI)
     if sessionTokenGLPI:
         print("Inicio de Sesion con GLPI establecida con exito")
@@ -102,7 +102,6 @@ def interGLPIAPI(urlGLPI, appTokenGLPI, userToken):
         category = select_category(categories)
         print(f"Has seleccionado: {category}")
         assetsGLPI = get_assets_glpi(urlGLPI, headersGLPI, category)
-        #print(assetsGLPI[0])
         asset_data = data_assets_glpi(assetsGLPI, category, headersGLPI)                         
         return asset_data
 
