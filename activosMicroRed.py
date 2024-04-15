@@ -19,5 +19,5 @@ if __name__ == '__main__':
     networkAssets = ["192.168.222.0/24", "192.168.244.0/24"]
     assetsData = iglpiapi.interGLPIAPI(urlGLPI, appTokenGLPI, userToken)
     print(assetsData)
-    ip = ips.ipScanner(assetsPrueba, networkAssets)
-    print(ip)
+    #ip = ips.ipScanner(assetsPrueba, networkAssets)
+    #print(ip)

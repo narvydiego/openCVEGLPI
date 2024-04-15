@@ -90,16 +90,17 @@ if __name__ == "__main__":
             nameAsset = asset.get('name')
             linksAsset = asset.get('links')
             for link in linksAsset:
-                rel = link.get('rel')
-                if rel == 'NetworkPort':
-                    href = link.get('href')
-                    response = requests.get(href, headers=headersGLPI)
-                    networkPorts = response.json()
-                    if networkPorts != []:
-                        for networkPort in networkPorts:
-                            mac = networkPort.get('mac')
-                            if mac != None and mac != "00:00:00:00:00:00":
-                                asset_data.append({"id": idAsset, "name": nameAsset, "mac": mac})                                 
+                if category == 'Computer':
+                    rel = link.get('rel')
+                    if rel == 'NetworkPort':
+                        href = link.get('href')
+                        response = requests.get(href, headers=headersGLPI)
+                        networkPorts = response.json()
+                        if networkPorts != []:
+                            for networkPort in networkPorts:
+                                mac = networkPort.get('mac')
+                                if mac != None and mac != "00:00:00:00:00:00":
+                                    asset_data.append({"id": idAsset, "name": nameAsset, "mac": mac})                                 
         print(asset_data)
         # Escaneo de direcciones IP de los dispositivos
         get_assets_ip(asset_data)

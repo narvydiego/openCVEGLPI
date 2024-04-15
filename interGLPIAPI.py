@@ -38,7 +38,7 @@ def select_category(categories):
 # Funcion para obtener los activos de GLPI
 def get_assets_glpi(urlGLPI, headers, category):
     response = requests.get(urlGLPI + f'/{category}', headers=headers)
-    if response.status_code != 200:
+    if response.status_code != 200 and response.status_code != 206:
         raise Exception(f"Respuesta Fallida con status: {response.status_code}")
     try:
         assets = response.json()
@@ -47,9 +47,48 @@ def get_assets_glpi(urlGLPI, headers, category):
     
     return assets
 
+# Funcion para obtener modelo y tipo de activos de GLPI
+def get_model_type(link, headersGLPI):
+    href = link.get('href')
+    response = requests.get(href, headers=headersGLPI)
+    equipamentResponse = response.json()
+    if equipamentResponse != []:
+        name = equipamentResponse.get('name')
+        return name
+    return None
+    
+
+# Funcion para categorizar los datos obtenido de GLPI
+def data_assets_glpi(assetsGLPI, category, headersGLPI):
+    asset_data = []
+    for asset in assetsGLPI:
+        idAsset = asset.get('id')
+        nameAsset = asset.get('name')
+        linksAsset = asset.get('links')
+        newAsset = {"id": idAsset, "name": nameAsset}
+        for link in linksAsset:
+            rel = link.get('rel')
+            if rel == f'{category}Model':
+                newAsset['model'] = get_model_type(link, headersGLPI)
+            elif rel == f'{category}Type':
+                newAsset['type'] = get_model_type(link, headersGLPI)
+            elif rel == 'NetworkPort':
+                href = link.get('href')
+                response = requests.get(href, headers=headersGLPI)
+                networkPorts = response.json()
+                if networkPorts != []:
+                    direcMAC = []
+                    for networkPort in networkPorts:
+                        mac = networkPort.get('mac')
+                        if mac != None and mac != "00:00:00:00:00:00":
+                            direcMAC.append(mac)
+                    newAsset['mac'] = direcMAC
+        asset_data.append(newAsset)
+    return asset_data
+
 def interGLPIAPI(urlGLPI, appTokenGLPI, userToken):
     # Categoria de activos en GLPI
-    categories = ['Computer', 'NetworkEquipment', 'Peripheral', 'Phone', 'Printer', 'Software', 'Storage', 'User', 'VirtualMachine']
+    categories = ['Computer', 'networkequipment', 'Peripheral', 'Phone', 'Printer', 'Software', 'Storage', 'User', 'VirtualMachine']
     sessionTokenGLPI = get_session_token(appTokenGLPI, userToken, urlGLPI)
     if sessionTokenGLPI:
         print("Inicio de Sesion con GLPI establecida con exito")
@@ -63,21 +102,7 @@ def interGLPIAPI(urlGLPI, appTokenGLPI, userToken):
         category = select_category(categories)
         print(f"Has seleccionado: {category}")
         assetsGLPI = get_assets_glpi(urlGLPI, headersGLPI, category)
-        asset_data = []
-        for asset in assetsGLPI:
-            idAsset = asset.get('id')
-            nameAsset = asset.get('name')
-            linksAsset = asset.get('links')
-            for link in linksAsset:
-                rel = link.get('rel')
-                if rel == 'NetworkPort':
-                    href = link.get('href')
-                    response = requests.get(href, headers=headersGLPI)
-                    networkPorts = response.json()
-                    if networkPorts != []:
-                        for networkPort in networkPorts:
-                            mac = networkPort.get('mac')
-                            if mac != None and mac != "00:00:00:00:00:00":
-                                asset_data.append({"id": idAsset, "name": nameAsset, "mac": mac})                                 
+        #print(assetsGLPI[0])
+        asset_data = data_assets_glpi(assetsGLPI, category, headersGLPI)                         
         return asset_data
 
