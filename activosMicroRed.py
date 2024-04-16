@@ -5,7 +5,9 @@ Autores: Diego Narvaez, Fabricio Malla
 Main para la obtencion de CVE en base a los activos de la MicroRed API de GLPI y OpenCVE
 """
 import interGLPIAPI as iglpiapi
+import interopenCVEAPI as icveapi
 import ipScanner as ips
+import csv
 
 assetsPrueba = [{
     'id': 9,
@@ -14,6 +16,19 @@ assetsPrueba = [{
     'id': 9,
     'name': 'preuba2', 
     'mac': ['00:ff:b3:2c:6c:43', 'f0:77:c3:07:43:97', 'b0:22:7a:22:e6:3c']}]
+
+def guardar_csv(assetsData):
+    dictWithMostKeys = assetsData[0]
+    for asset in assetsData:
+        if len(asset) > len(dictWithMostKeys):
+            dictWithMostKeys = asset
+    columnames = list(dictWithMostKeys.keys())
+    with open('assetsData.csv', 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=columnames)
+        writer.writeheader()
+        for asset in assetsData:
+            writer.writerow(asset)
+
 #00:0c:29:07:60:23 f0:77:c3:07:57:97
 if __name__ == '__main__':
     urlGLPI =  "http://192.168.222.57/apirest.php" 
@@ -26,3 +41,8 @@ if __name__ == '__main__':
     print("Obtencion de direcciones IP en base a las direcciones MAC")
     ip = ips.ipScanner(assetsData, networkAssets)
     print(ip)
+    print("Obteniendo CVE en base a el nombre de los activos")
+    dataCVE = icveapi.interopenCVEAPI(assetsData)
+    print(dataCVE)
+    print("Guardando activos en un archivo CSV")
+    guardar_csv(assetsData)

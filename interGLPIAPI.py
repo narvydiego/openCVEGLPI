@@ -54,6 +54,9 @@ def get_model_type(link, headersGLPI):
     equipamentResponse = response.json()
     if equipamentResponse != []:
         name = equipamentResponse.get('name')
+        if "product_number" in equipamentResponse:
+            model = equipamentResponse.get('product_number')
+            name = f"{name}{model}"
         return name
     return None
     
