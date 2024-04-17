@@ -6,3 +6,9 @@ Este es el código esta siendo generado para obtener los activos de un servidor 
 3. **ipScanner.py:** Realiza el escaneo de direcciones IP mediante un listado de direcciones MAC, esto es mediante el uso de mensajes ARP
 4. **interopenCVEAPI.py:** Realiza el escaneo de CVE de los activos de la MicroRed utiliza openCVE y manda las vulnerabilidades conocidas
 5. **GLPICVE.py:** Código de referencia para realizar pruebas
+## Requisitos
+1. Nmap
+2. Python
+3. GLPI
+4. Cuenta en OpenCVE
+5. Libreria ScaPy
