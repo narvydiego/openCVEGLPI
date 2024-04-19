@@ -2,47 +2,47 @@
 Universidad de Cuenca - Ingeniería en Telecomunicaciones
 Trabajo de Titulación - 2024: Implementacion de un Framework para pentesting en el laboratorio de MicroRed de la Universidad de Cuenca
 Autores: Diego Narvaez, Fabricio Malla
-Main para la obtencion de CVE en base a los activos de la MicroRed API de GLPI y OpenCVE
+Este es el modulo principal para la obtencion de los activos de GLPI y sus respectivos CVEs
 """
+
 import interGLPIAPI as iglpiapi
-import interopenCVEAPI as icveapi
-import ipScanner as ips
-import csv
+import interopenCVEAPI as iopenCVEapi
+import ipScanner as ipScan
 
-assetsPrueba = [{
-    'id': 9,
-    'name': 'microredcs', 
-    'mac': ['00:ff:b3:2c:6c:43', 'f0:77:c3:07:43:97', 'b0:22:7a:22:e6:3c']}, {
-    'id': 9,
-    'name': 'preuba2', 
-    'mac': ['00:ff:b3:2c:6c:43', 'f0:77:c3:07:43:97', 'b0:22:7a:22:e6:3c']}]
+# Funcion para obtener datos de archivo txt
+def get_info_txt():
+    neceInfo = {}
+    with open('requirements.txt', 'r') as archivo:
+        for linea in archivo:
+            partes = linea.strip().split('=')
+            if len(partes) == 2:
+                clave, data = partes
+                verData = data.split(',')
+                if len(verData) == 1:
+                    neceInfo[clave] = data
+                else:
+                    neceInfo[clave] = verData
+            elif len(partes) == 3:
+                neceInfo[partes[0]] = partes[1] + '='
+    return neceInfo
 
-def guardar_csv(assetsData):
-    dictWithMostKeys = assetsData[0]
-    for asset in assetsData:
-        if len(asset) > len(dictWithMostKeys):
-            dictWithMostKeys = asset
-    columnames = list(dictWithMostKeys.keys())
-    with open('assetsData.csv', 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=columnames)
-        writer.writeheader()
-        for asset in assetsData:
-            writer.writerow(asset)
 
-#00:0c:29:07:60:23 f0:77:c3:07:57:97
-if __name__ == '__main__':
-    urlGLPI =  "http://192.168.222.57/apirest.php" 
-    appTokenGLPI = "waXuGxupcV5xpHJbLu81bIgzypHdgIQfYJSS8qmZ"
-    userToken = "PMujBIXnMJvnHyyqcmd0u17whdihRatbtHCCZ5TM"
-    networkAssets = ["192.168.222.0/24", "192.168.244.0/24"]
-    print("Obtencion de activos de GLPI")
-    assetsData = iglpiapi.interGLPIAPI(urlGLPI, appTokenGLPI, userToken)
-    print(assetsData)
-    print("Obtencion de direcciones IP en base a las direcciones MAC")
-    ip = ips.ipScanner(assetsData, networkAssets)
-    print(ip)
-    print("Obteniendo CVE en base a el nombre de los activos")
-    dataCVE = icveapi.interopenCVEAPI(assetsData)
-    print(dataCVE)
-    print("Guardando activos en un archivo CSV")
-    guardar_csv(assetsData)
+# Funcion principal del proyecto
+if __name__ == "__main__":
+    verNecInfo = ["urlGLPI", "appTokenGLPI", "userToken", "networkAssets", "openCVEURL", "usernameOpenCVE", "passOpenCVE"]
+    neceInfo = {} # Diccionario para almacenar la informacion necesaria para el proyecto
+    neceInfo = get_info_txt() 
+    # Comprobar la información ingresada en requirements.txt
+    if set(verNecInfo) == set(neceInfo.keys()):
+        print("Datos en requirements.txt correctamente ingresados!!!!")
+        print("1. Proceso de obtencion de activos de GLPI")
+        assetsData = iglpiapi.interGLPIAPI(neceInfo['urlGLPI'], neceInfo['appTokenGLPI'], neceInfo['userToken'])
+        print("2. Proceso de obtencion de direcciones Ip en base a las direcciones MAC")
+        ip = ipScan.ipScanner(assetsData)
+        print("3. Proceso de obtencion de CVEs")
+        cveData = iopenCVEapi.interopenCVEAPI(assetsData, neceInfo['openCVEURL'], neceInfo['usernameOpenCVE'], neceInfo['passOpenCVE'])
+        
+    else:
+        print("Datos en requirements.txt ingresados erroneamente!!!")
+        faltInfo = [falt for falt in set(verNecInfo) if falt not in set(neceInfo.keys())]
+        print(f"Datos Faltantes: \n {faltInfo}")    

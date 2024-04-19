@@ -7,10 +7,6 @@ Obtencion de los errores CVE en base a la lista de nombres de activos de la Micr
 import requests
 from requests.auth import HTTPBasicAuth
 
-openCVEURL = 'https://www.opencve.io/api/cve?search=' # URL de la API de OpenCVE
-username = 'diego.narvaezp' # Usuario de OpenCVE
-password = 'NarDie5716' # Contrasena de OpenCVE
-
 def assetsModels(assetsData):
     assetNames = set()
     for asset in assetsData:
@@ -19,7 +15,7 @@ def assetsModels(assetsData):
             assetNames.add(assetName)
     return assetNames
 
-def interopenCVEAPI(assetsData):
+def interopenCVEAPI(assetsData, openCVEURL, username, password):
     assetNames = assetsModels(assetsData)
     cveData = []
     for name in assetNames:
