@@ -9,6 +9,6 @@ Este es el código esta siendo generado para obtener los activos de un servidor 
 ## Requisitos
 1. Nmap
 2. Python
-3. GLPI
-4. Cuenta en OpenCVE
+3. GLPI 
+4. API en OpenCVE
 5. Libreria ScaPy
