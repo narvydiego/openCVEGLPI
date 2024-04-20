@@ -20,20 +20,6 @@ def get_session_token(appTokenGLPI, userToken, urlGLPI):
     else:
         print("No se a podido establecer una sesion")
         return None
-    
-# Funcion para seleccionar una categoria de activos
-def select_category(categories):
-    print("Por favor, selecciona una categoría:")
-    for i, category in enumerate(categories, 1):
-        print(f"{i}. {category}")
-
-    selected = int(input("Ingresa el número de la categoría: ")) - 1
-
-    if 0 <= selected < len(categories):
-        return categories[selected]
-    else:
-        print("Selección inválida. Por favor, intenta de nuevo.")
-        return select_category(categories)
 
 # Funcion para obtener los activos de GLPI
 def get_assets_glpi(urlGLPI, headers, category):
@@ -89,9 +75,9 @@ def data_assets_glpi(assetsGLPI, category, headersGLPI):
         asset_data.append(newAsset)
     return asset_data
 
-def interGLPIAPI(urlGLPI, appTokenGLPI, userToken):
+def interGLPIAPI(urlGLPI, appTokenGLPI, userToken, categories):
     # Categoria de activos en GLPI
-    categories = ['Computer', 'NetworkEquipment', 'Peripheral', 'Software', 'VirtualMachine']
+    
     sessionTokenGLPI = get_session_token(appTokenGLPI, userToken, urlGLPI)
     if sessionTokenGLPI:
         print("Inicio de Sesion con GLPI establecida con exito")
@@ -102,11 +88,12 @@ def interGLPIAPI(urlGLPI, appTokenGLPI, userToken):
             "Session-Token": sessionTokenGLPI
         }
         # Otencion de activos de GLPI categoria por categoria
-        asset_data = []
+        asset_data = {}
         for category in categories:
             print(f"Obteniendo activos de la categoria: {category}")
             assetsGLPI = get_assets_glpi(urlGLPI, headersGLPI, category)
-            print(f"Activos obtenidos: {assetsGLPI}")
-            asset_data.append(assetsGLPI)
+            dataAssetNece = data_assets_glpi(assetsGLPI, category, headersGLPI)
+            print(f"Activos obtenidos: {dataAssetNece}")
+            asset_data[category] = dataAssetNece
         return asset_data
 

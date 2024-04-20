@@ -30,17 +30,18 @@ def get_info_txt():
 # Funcion principal del proyecto
 if __name__ == "__main__":
     verNecInfo = ["urlGLPI", "appTokenGLPI", "userToken", "networkAssets", "openCVEURL", "usernameOpenCVE", "passOpenCVE"]
+    categories = ['Computer', 'NetworkEquipment', 'Peripheral', 'Software', 'VirtualMachine']
     neceInfo = {} # Diccionario para almacenar la informacion necesaria para el proyecto
     neceInfo = get_info_txt() 
     # Comprobar la información ingresada en requirements.txt
     if set(verNecInfo) == set(neceInfo.keys()):
         print("Datos en requirements.txt correctamente ingresados!!!!")
         print("1. Proceso de obtencion de activos de GLPI")
-        assetsData = iglpiapi.interGLPIAPI(neceInfo['urlGLPI'], neceInfo['appTokenGLPI'], neceInfo['userToken'])
+        assetsData = iglpiapi.interGLPIAPI(neceInfo['urlGLPI'], neceInfo['appTokenGLPI'], neceInfo['userToken'], categories)
         print("2. Proceso de obtencion de direcciones Ip en base a las direcciones MAC")
-        ip = ipScan.ipScanner(assetsData)
+        ip = ipScan.ipScanner(assetsData, verNecInfo['networkAssets'], categories)
         print("3. Proceso de obtencion de CVEs")
-        cveData = iopenCVEapi.interopenCVEAPI(assetsData, neceInfo['openCVEURL'], neceInfo['usernameOpenCVE'], neceInfo['passOpenCVE'])
+        cveData = iopenCVEapi.interopenCVEAPI(assetsData, neceInfo['openCVEURL'], neceInfo['usernameOpenCVE'], neceInfo['passOpenCVE'], categories)
         
     else:
         print("Datos en requirements.txt ingresados erroneamente!!!")

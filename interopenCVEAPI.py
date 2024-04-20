@@ -15,16 +15,18 @@ def assetsModels(assetsData):
             assetNames.add(assetName)
     return assetNames
 
-def interopenCVEAPI(assetsData, openCVEURL, username, password):
-    assetNames = assetsModels(assetsData)
-    cveData = []
-    for name in assetNames:
-        print(f"Buscando CVE para {name}")
-        response = requests.get(openCVEURL + name, auth=HTTPBasicAuth(username, password))
-        if response.status_code == 200:
-            cveResponse = response.json()
-            cve = {'model': name, 'cve': cveResponse}
-            cveData.append(cve)
-        else:
-            print(f"Error al obtener los datos de CVE para {name}")
-    return cveData
+def interopenCVEAPI(assetsData, openCVEURL, username, password, categories):
+    for category in categories:
+        assetNames = assetsModels(assetsData[category])
+        cveData = []
+        for name in assetNames:
+            print(f"Buscando CVE para {name}")
+            response = requests.get(openCVEURL + name, auth=HTTPBasicAuth(username, password))
+            if response.status_code == 200:
+                cveResponse = response.json()
+                cve = {'model': name, 'cve': cveResponse}
+                cveData.append(cve)
+            else:
+                print(f"Error al obtener los datos de CVE para {name}")
+        return cveData
+    
