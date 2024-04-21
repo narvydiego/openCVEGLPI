@@ -6,7 +6,9 @@ Este es el código que está siendo generado para obtener los activos de un serv
 2. **interGLPIAPI.py:** Sirve para la interacción entre nuestro proyecto y la API de GLPI para obtener los activos en base a categorías del Laboratorio.
 3. **ipScanner.py:** Realiza el escaneo de direcciones IP mediante un listado de direcciones MAC, esto se hace mediante el uso de mensajes ARP.
 4. **interopenCVEAPI.py:** Realiza el escaneo de CVE de los activos de la MicroRed utilizando openCVE y envía las vulnerabilidades conocidas.
-5. **GLPICVE.py:** Código de referencia para realizar pruebas.
+5. **informePDF.py:** Realiza un PDF donde se muestra un informe de los resultados obtenidos.
+6. **GLPICVE.py:** Código de referencia para realizar pruebas.
+
 
 ## Requisitos
 1. Nmap
