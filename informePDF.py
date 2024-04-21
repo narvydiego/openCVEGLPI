@@ -8,17 +8,31 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 from reportlab.lib import colors
-from reportlab.lib.units import inch
+from reportlab.platypus import Table, TableStyle
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase.pdfmetrics import stringWidth
 import datetime
 
+def wrap_text(text, max_chars):
+    """ Ajusta el texto para que no exceda el máximo de caracteres permitidos, añadiendo saltos de línea. """
+    words = text.split()
+    lines = []
+    current_line = ""
+    for word in words:
+        if len(current_line) + len(word) + 1 > max_chars:
+            lines.append(current_line)
+            current_line = word + " "
+        else:
+            current_line += word + " "
+    lines.append(current_line.strip())
+    return '\n'.join(lines)
+
 def addHeader(c):
-    width, height = letter  # Tamaño de página
+    width, height = letter
     image_path = 'logoUCuenca.png'
     image = ImageReader(image_path)
-    c.drawImage(image, 50, 740, width=100, height=50)  # Ajusta la posición y tamaño según necesites
+    c.drawImage(image, 50, 740, width=100, height=50)
     
     header_text = "Universidad de Cuenca"
     sub_header_text = "Informe de Activos, Laboratorio de MicroRed de la Universidad de Cuenca"
@@ -33,33 +47,52 @@ def addHeader(c):
     c.setFont("Helvetica", 12)
     c.drawString(sub_text_x, 745, sub_header_text)
     
-    c.line(50, 730, width - 50, 730)  # Añadir línea debajo del encabezado
+    c.line(50, 730, width - 50, 730)
 
-def print_dictionary_content(c, data_dict):
-    c.setFont("Helvetica", 12)
-    y_position = 710  # Inicializar la posición y desde donde se empieza a imprimir el diccionario
+def draw_table(c, y_position, data_assets):
+    width, height = letter
+    c.setFont("Helvetica-Bold", 12)
+    colWidths = [0.06 * width, 0.12 * width, 0.14 * width, 0.1 * width, 0.18 * width, 0.18 * width, 0.22 * width]
 
-    for category, items in data_dict.items():
-        c.drawString(50, y_position, f"{category}:")
-        y_position -= 20  # Ajustar la posición y para la primera entrada del arreglo
+    for category, assets in data_assets.items():
+        c.drawString(50, y_position, category)
+        y_position -= 30
 
-        for item in items:
-            c.drawString(70, y_position, f"- {item}")
-            y_position -= 20  # Ajustar la posición y para la siguiente entrada
-        
-        y_position -= 10  # Espacio extra antes de la siguiente categoría
+        table_data = [['ID', 'Name', 'Model', 'Type', 'MAC Addresses', 'IP Addresses', 'CVEs']]
+        for asset in assets:
+            row = [
+                asset['id'],
+                wrap_text(asset['name'], 15),
+                wrap_text(asset['model'], 20),
+                wrap_text(asset['type'], 15),
+                '\n'.join(asset['mac']),
+                '\n'.join(asset['ip']),
+                '\n'.join(asset['cve'])
+            ]
+            table_data.append(row)
 
-if __name__ == "__main__":
+        table = Table(table_data, colWidths=colWidths)
+        table.setStyle(TableStyle([
+            ('GRID', (0,0), (-1,-1), 1, colors.black),
+            ('BACKGROUND', (0,0), (-1,0), colors.lightgrey),
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+            ('VALIGN', (0,0), (-1,-1), 'TOP'),
+            ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
+            ('FONTSIZE', (0,0), (-1,-1), 10),
+        ]))
+
+        needed_height = table.wrap(width-100, height)[1]
+        if y_position - needed_height < 50:
+            c.showPage()
+            y_position = height - 50
+        table.drawOn(c, 50, y_position - needed_height)
+        y_position -= (needed_height + 20)
+
+def informePDF(data_assets, filename):
     fecha = datetime.date.today()
-    c = canvas.Canvas(f"informeActivosMicroRed{fecha}.pdf", pagesize=letter)
+    c = canvas.Canvas(f"{filename}_{fecha}.pdf", pagesize=letter)
     addHeader(c)
-    
-    # Ejemplo de diccionario
-    data_dict = {
-        "Categoría 1": ["Item 1", "Item 2", "Item 3"],
-        "Categoría 2": ["Item A", "Item B"],
-        "Categoría 3": ["Item X", "Item Y", "Item Z"]
-    }
-
-    print_dictionary_content(c, data_dict)
+    y_position = 700
+    draw_table(c, y_position, data_assets)
     c.save()
+
