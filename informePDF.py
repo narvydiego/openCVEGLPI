@@ -35,7 +35,7 @@ def addHeader(c):
     c.drawImage(image, 50, 740, width=100, height=50)
     
     header_text = "Universidad de Cuenca"
-    sub_header_text = "Informe de Activos, Laboratorio de MicroRed de la Universidad de Cuenca"
+    sub_header_text = "Informe de Activos, Laboratorio de MicroRed"
     text_width = stringWidth(header_text, 'Helvetica', 14)
     sub_text_width = stringWidth(sub_header_text, 'Helvetica', 12)
     
@@ -49,10 +49,10 @@ def addHeader(c):
     
     c.line(50, 730, width - 50, 730)
 
-def draw_table(c, y_position, data_assets):
+def draw_table(c, y_position, data_assets, top_margin=50, bottom_margin=50):
     width, height = letter
     c.setFont("Helvetica-Bold", 12)
-    colWidths = [0.06 * width, 0.12 * width, 0.14 * width, 0.1 * width, 0.18 * width, 0.18 * width, 0.22 * width]
+    colWidths = [0.04 * width, 0.10 * width, 0.14 * width, 0.1 * width, 0.18 * width, 0.13 * width, 0.15 * width]
 
     for category, assets in data_assets.items():
         c.drawString(50, y_position, category)
@@ -62,9 +62,9 @@ def draw_table(c, y_position, data_assets):
         for asset in assets:
             row = [
                 asset['id'],
-                wrap_text(asset['name'], 15),
-                wrap_text(asset['model'], 20),
-                wrap_text(asset['type'], 15),
+                wrap_text(asset['name'], 12),
+                wrap_text(asset['model'], 15),
+                wrap_text(asset['type'], 12),
                 '\n'.join(asset['mac']),
                 '\n'.join(asset['ip']),
                 '\n'.join(asset['cve'])
@@ -82,11 +82,13 @@ def draw_table(c, y_position, data_assets):
         ]))
 
         needed_height = table.wrap(width-100, height)[1]
-        if y_position - needed_height < 50:
+        if y_position - needed_height < bottom_margin:
             c.showPage()
-            y_position = height - 50
+            addHeader(c) 
+            y_position = height - top_margin 
         table.drawOn(c, 50, y_position - needed_height)
         y_position -= (needed_height + 20)
+
 
 def informePDF(data_assets, filename):
     fecha = datetime.date.today()
