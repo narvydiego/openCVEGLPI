@@ -1,0 +1,5 @@
+Name, IP Address
+Servidor SCADA, 192.168.1.101
+Servidor SCADA, 192.168.1.102
+Switch Ethernet Industrial, 192.168.1.200
+HMI Touch Screen, 192.168.1.50

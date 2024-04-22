@@ -9,6 +9,7 @@ import interGLPIAPI as iglpiapi
 import interopenCVEAPI as iopenCVEapi
 import ipScanner as ipScan
 import informePDF as iPDF
+import csv
 
 # Diccionario para ejemplo de datos de activos
 ejempData = {
@@ -70,11 +71,11 @@ ejempData2 = {
             "model": "Dell PowerEdge R740",
             "type": "Servidor Industrial",
             "mac": [
-                "00:A0:C9:18:C8:BB",  # Suponemos que esta MAC tiene una IP asignada
-                "00:A0:C9:18:C8:BC",  # Suponemos que esta MAC no responde al escaneo
-                "00:A0:C9:18:C8:BD"   # Suponemos que esta MAC tiene una IP asignada
+                "00:A0:C9:18:C8:BB",  
+                "00:A0:C9:18:C8:BC", 
+                "00:A0:C9:18:C8:BD"  
             ],
-            "ip": ["192.168.1.101", "192.168.1.102"]  # Respuestas encontradas para las MACs que respondieron
+            "ip": ["192.168.1.101", "192.168.1.102"]  
         },
         {
             "id": "102",
@@ -82,7 +83,7 @@ ejempData2 = {
             "model": "HP Z4 G4",
             "type": "Workstation",
             "mac": ["00:A0:C9:43:F3:C1"],
-            "ip": []  # Suponemos que esta MAC no responde al escaneo
+            "ip": []  
         }
     ],
     "NetworkEquipment": [
@@ -92,7 +93,7 @@ ejempData2 = {
             "model": "Siemens SCALANCE X208",
             "type": "Switch Industrial",
             "mac": ["00:A0:C9:23:A5:B9"],
-            "ip": ["192.168.1.200"]  # Respuesta encontrada para la MAC
+            "ip": ["192.168.1.200"]  
         },
         {
             "id": "202",
@@ -100,7 +101,7 @@ ejempData2 = {
             "model": "Cisco IE-4010",
             "type": "Router Industrial",
             "mac": ["00:A0:C9:59:01:CF"],
-            "ip": []  # Suponemos que esta MAC no responde al escaneo
+            "ip": []  
         }
     ],
     "Peripheral": [
@@ -110,7 +111,7 @@ ejempData2 = {
             "model": "Siemens SIMATIC HMI",
             "type": "HMI",
             "mac": ["00:A0:C9:60:11:22"],
-            "ip": ["192.168.1.50"]  # Respuesta encontrada para la MAC
+            "ip": ["192.168.1.50"]  
         },
         {
             "id": "302",
@@ -118,7 +119,7 @@ ejempData2 = {
             "model": "Zebra ZT230",
             "type": "Impresora Industrial",
             "mac": ["00:A0:C9:31:41:51"],
-            "ip": []  # Suponemos que esta MAC no responde al escaneo
+            "ip": []  
         }
     ]
 }
@@ -187,6 +188,24 @@ data3 = {
     ]
 }
 
+# Funcion para crear archivos CSV con los activos obtenidos
+def createCSV(dataAssetes, filename):
+    with open (filename, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["ID", "Name", "Model", "Type", "MAC Addresses", "IP Addresses", "CVEs"])
+        for category, assets in dataAssetes.items():
+            for asset in assets:
+                writer.writerow([asset['id'], asset['name'], asset['model'], asset['type'], asset['mac'], asset['ip'], asset['cve']])
+
+# Funcion para obtener las direcciones IP en archivo TXT
+def createTXT(dataAssets, filename):
+    with open (filename, 'w') as file:
+        file.write("Name, IP Address\n")
+        for category, assets in dataAssets.items():
+            for asset in assets:
+                if asset['ip']:
+                    for ip in asset['ip']:
+                        file.write(f"{asset['name']}, {ip}\n")
 
 # Funcion para obtener datos de archivo txt
 def get_info_txt():
@@ -240,6 +259,8 @@ if __name__ == "__main__":
         print(data)
         print("4. Impresion de los datos obtenidos en un archivo PDF")
         iPDF.informePDF(data3, "Informe_Activos_MicroRed")
+        createCSV(data3, "Activos_MicroRed.csv")
+        createTXT(data3, "IP_MicroRed.txt")
     else:
         print("Datos en requirements.txt ingresados erroneamente!!!")
         faltInfo = [falt for falt in set(verNecInfo) if falt not in set(neceInfo.keys())]

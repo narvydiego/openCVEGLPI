@@ -1,0 +1,7 @@
+ID,Name,Model,Type,MAC Addresses,IP Addresses,CVEs
+101,Servidor SCADA,Dell PowerEdge R740,Servidor Industrial,"['00:A0:C9:18:C8:BB', '00:A0:C9:18:C8:BC', '00:A0:C9:18:C8:BD']","['192.168.1.101', '192.168.1.102']",[]
+102,Workstation para Ingeniería,HP Z4 G4,Workstation,['00:A0:C9:43:F3:C1'],[],[]
+201,Switch Ethernet Industrial,Siemens SCALANCE X208,Switch Industrial,['00:A0:C9:23:A5:B9'],['192.168.1.200'],[]
+202,Router Industrial,Cisco IE-4010,Router Industrial,['00:A0:C9:59:01:CF'],[],[]
+301,HMI Touch Screen,Siemens SIMATIC HMI,HMI,['00:A0:C9:60:11:22'],['192.168.1.50'],"['CVE-2015-2822', 'CVE-2015-2823']"
+302,Impresora de Etiquetas Industrial,Zebra ZT230,Impresora Industrial,['00:A0:C9:31:41:51'],[],[]
