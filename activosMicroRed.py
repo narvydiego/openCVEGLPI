@@ -10,6 +10,7 @@ import interopenCVEAPI as iopenCVEapi
 import ipScanner as ipScan
 import informePDF as iPDF
 import csv
+import os
 
 # Diccionario para ejemplo de datos de activos
 ejempData = {
@@ -188,9 +189,15 @@ data3 = {
     ]
 }
 
+# Funcion para Comprobacion de existencia de carpeta para almacenar archivos
+def checkFolder(folderName):
+    if not os.path.exists(folderName):
+        os.makedirs(folderName)
+
 # Funcion para crear archivos CSV con los activos obtenidos
-def createCSV(dataAssetes, filename):
-    with open (filename, 'w', newline='') as file:
+def createCSV(dataAssetes, folderPath, filename):
+    filePath = os.path.join(folderPath, filename)
+    with open (filePath, 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["ID", "Name", "Model", "Type", "MAC Addresses", "IP Addresses", "CVEs"])
         for category, assets in dataAssetes.items():
@@ -198,8 +205,9 @@ def createCSV(dataAssetes, filename):
                 writer.writerow([asset['id'], asset['name'], asset['model'], asset['type'], asset['mac'], asset['ip'], asset['cve']])
 
 # Funcion para obtener las direcciones IP en archivo TXT
-def createTXT(dataAssets, filename):
-    with open (filename, 'w') as file:
+def createTXT(dataAssets, folderPath, filename):
+    filePath = os.path.join(folderPath, filename)
+    with open (filePath, 'w') as file:
         file.write("Name, IP Address\n")
         for category, assets in dataAssets.items():
             for asset in assets:
@@ -239,28 +247,30 @@ def intDataCVE(assetsData, cveData, categories):
 
 # Funcion principal del proyecto
 if __name__ == "__main__":
+    folderPath = "Resultados"
     verNecInfo = ["urlGLPI", "appTokenGLPI", "userToken", "networkAssets", "openCVEURL", "usernameOpenCVE", "passOpenCVE"]
     #categories = ['Computer', 'NetworkEquipment', 'Peripheral', 'Software', 'VirtualMachine']
     categories = ['Computer', 'NetworkEquipment', 'Peripheral']
     neceInfo = {} # Diccionario para almacenar la informacion necesaria para el proyecto
     neceInfo = get_info_txt() 
+    checkFolder(folderPath)
     # Comprobar la información ingresada en requirements.txt
     if set(verNecInfo) == set(neceInfo.keys()):
         print("Datos en requirements.txt correctamente ingresados!!!!")
-        print("1. Proceso de obtencion de activos de GLPI")
-        assetsData = iglpiapi.interGLPIAPI(neceInfo['urlGLPI'], neceInfo['appTokenGLPI'], neceInfo['userToken'], categories)
-        print("2. Proceso de obtencion de direcciones Ip en base a las direcciones MAC")
-        ip = ipScan.ipScanner(assetsData, verNecInfo['networkAssets'], categories)
-        print("3. Proceso de obtencion de CVEs")
-        cveData = iopenCVEapi.interopenCVEAPI(ejempData2, neceInfo['openCVEURL'], neceInfo['usernameOpenCVE'], neceInfo['passOpenCVE'], categories)
-        print(cveData)
-        data = intDataCVE(ejempData2, cveData, categories)
-        print("Diccioario antes de la impresion")
-        print(data)
+        #print("1. Proceso de obtencion de activos de GLPI")
+        #assetsData = iglpiapi.interGLPIAPI(neceInfo['urlGLPI'], neceInfo['appTokenGLPI'], neceInfo['userToken'], categories)
+        #print("2. Proceso de obtencion de direcciones Ip en base a las direcciones MAC")
+        #ip = ipScan.ipScanner(assetsData, verNecInfo['networkAssets'], categories)
+        #print("3. Proceso de obtencion de CVEs")
+        #cveData = iopenCVEapi.interopenCVEAPI(ejempData2, neceInfo['openCVEURL'], neceInfo['usernameOpenCVE'], neceInfo['passOpenCVE'], categories)
+        #print(cveData)
+        #data = intDataCVE(ejempData2, cveData, categories)
+        #print("Diccioario antes de la impresion")
+        #print(data)
         print("4. Impresion de los datos obtenidos en un archivo PDF")
-        iPDF.informePDF(data3, "Informe_Activos_MicroRed")
-        createCSV(data3, "Activos_MicroRed.csv")
-        createTXT(data3, "IP_MicroRed.txt")
+        iPDF.informePDF(data3, folderPath, "Informe_Activos_MicroRed")
+        createCSV(data3, folderPath, "Activos_MicroRed.csv")
+        createTXT(data3, folderPath, "IP_MicroRed.txt")
     else:
         print("Datos en requirements.txt ingresados erroneamente!!!")
         faltInfo = [falt for falt in set(verNecInfo) if falt not in set(neceInfo.keys())]

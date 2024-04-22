@@ -13,6 +13,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase.pdfmetrics import stringWidth
 import datetime
+import os
 
 def wrap_text(text, max_chars):
     """ Ajusta el texto para que no exceda el máximo de caracteres permitidos, añadiendo saltos de línea. """
@@ -90,9 +91,10 @@ def draw_table(c, y_position, data_assets, top_margin=50, bottom_margin=50):
         y_position -= (needed_height + 20)
 
 
-def informePDF(data_assets, filename):
+def informePDF(data_assets, folderPath, filename):
     fecha = datetime.date.today()
-    c = canvas.Canvas(f"{filename}_{fecha}.pdf", pagesize=letter)
+    fullPath = os.path.join(folderPath, f"{filename}_{fecha}.pdf")
+    c = canvas.Canvas(fullPath, pagesize=letter)
     addHeader(c)
     y_position = 700
     draw_table(c, y_position, data_assets)
