@@ -9,7 +9,7 @@ Este es el código que está siendo generado para obtener los activos de un serv
 5. **informePDF.py:** Realiza un PDF donde se muestra un informe de los resultados obtenidos.
 6. **GLPICVE.py:** Código de referencia para realizar pruebas.
 
-## Archivos Necesarios
+## Archivos necesarios
 1. **requirements.txt:** Archivos que contienen datos necesarios para el funcionamiento del programa (Credenciales, URL, Redes a Escanear, etc).
 2. **logoUCuenca.png:** Logo de la Universidad de Cuenca, se lo imprimira en el encabezado del informe.
 
