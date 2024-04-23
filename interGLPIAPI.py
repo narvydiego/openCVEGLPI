@@ -59,6 +59,8 @@ def data_assets_glpi(assetsGLPI, category, headersGLPI):
             rel = link.get('rel')
             if rel == f'{category}Model':
                 newAsset['model'] = get_model_type(link, headersGLPI)
+                if newAsset['model'] == "Modicon TM251MESE1":
+                    newAsset['model'] = "Modicon M251"
             elif rel == f'{category}Type':
                 newAsset['type'] = get_model_type(link, headersGLPI)
             elif rel == 'NetworkPort':

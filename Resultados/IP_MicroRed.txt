@@ -1,6 +1,1 @@
 Name, IP Address
-microredcs, 192.168.222.57
-PLC Apis1, 192.168.222.9
-PLC1 Apis2, 192.168.222.11
-PLC2 Apis2, 192.168.222.12
-PLC3 apis2, 192.168.222.13
