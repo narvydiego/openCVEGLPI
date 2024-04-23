@@ -20,3 +20,5 @@ Este es el código que está siendo generado para obtener los activos de un serv
 4. API en OpenCVE
 5. Librería Scapy
 6. Librería ReportLab
+## Archivos de resultado
+Los archivos que arroja nuestro programa se podrán visualizar en la carpeta de "Resultados". El programa guarda un informe en archivo PDF de los activos, y de igual forma, con esta misma información, un archivo CSV y un archivo TXT que muestra el nombre del activo y la dirección IP obtenida.
