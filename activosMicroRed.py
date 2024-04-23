@@ -240,7 +240,7 @@ def intDataCVE(assetsData, cveData, categories):
         assetsCategory = assetsData[category]
         for asset in assetsCategory:
             for cve in cveData:
-                if asset['model'] == cve['model']:
+                if 'model' in asset and 'model' in cve and asset['model'] == cve['model']:
                     asset['cve'] = cve['cve']
     return assetsData
 
@@ -257,20 +257,20 @@ if __name__ == "__main__":
     # Comprobar la información ingresada en requirements.txt
     if set(verNecInfo) == set(neceInfo.keys()):
         print("Datos en requirements.txt correctamente ingresados!!!!")
-        #print("1. Proceso de obtencion de activos de GLPI")
-        #assetsData = iglpiapi.interGLPIAPI(neceInfo['urlGLPI'], neceInfo['appTokenGLPI'], neceInfo['userToken'], categories)
+        print("1. Proceso de obtencion de activos de GLPI")
+        assetsData = iglpiapi.interGLPIAPI(neceInfo['urlGLPI'], neceInfo['appTokenGLPI'], neceInfo['userToken'], categories)
+        print(assetsData)
         #print("2. Proceso de obtencion de direcciones Ip en base a las direcciones MAC")
-        #ip = ipScan.ipScanner(assetsData, verNecInfo['networkAssets'], categories)
-        #print("3. Proceso de obtencion de CVEs")
-        #cveData = iopenCVEapi.interopenCVEAPI(ejempData2, neceInfo['openCVEURL'], neceInfo['usernameOpenCVE'], neceInfo['passOpenCVE'], categories)
-        #print(cveData)
-        #data = intDataCVE(ejempData2, cveData, categories)
-        #print("Diccioario antes de la impresion")
-        #print(data)
+        #ip = ipScan.ipScanner(assetsData, neceInfo['networkAssets'], categories)
+        #print(ip)
+        print("3. Proceso de obtencion de CVEs")
+        cveData = iopenCVEapi.interopenCVEAPI(assetsData, neceInfo['openCVEURL'], neceInfo['usernameOpenCVE'], neceInfo['passOpenCVE'], categories)
+        print(cveData)
+        data = intDataCVE(assetsData, cveData, categories)
         print("4. Impresion de los datos obtenidos en un archivo PDF")
-        iPDF.informePDF(data3, folderPath, "Informe_Activos_MicroRed")
-        createCSV(data3, folderPath, "Activos_MicroRed.csv")
-        createTXT(data3, folderPath, "IP_MicroRed.txt")
+        iPDF.informePDF(data, folderPath, "Informe_Activos_MicroRed")
+        createCSV(data, folderPath, "Activos_MicroRed.csv")
+        createTXT(data, folderPath, "IP_MicroRed.txt")
     else:
         print("Datos en requirements.txt ingresados erroneamente!!!")
         faltInfo = [falt for falt in set(verNecInfo) if falt not in set(neceInfo.keys())]
