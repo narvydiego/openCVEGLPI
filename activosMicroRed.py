@@ -202,7 +202,15 @@ def createCSV(dataAssetes, folderPath, filename):
         writer.writerow(["ID", "Name", "Model", "Type", "MAC Addresses", "IP Addresses", "CVEs"])
         for category, assets in dataAssetes.items():
             for asset in assets:
-                writer.writerow([asset['id'], asset['name'], asset['model'], asset['type'], asset['mac'], asset['ip'], asset['cve']])
+                writer.writerow([
+                    asset.get('id', ''), 
+                    asset.get('name', ''), 
+                    asset.get('model', ''), 
+                    asset.get('type', ''), 
+                    ', '.join(asset.get('mac', [])), 
+                    ', '.join(asset.get('ip', [])), 
+                    ', '.join(asset.get('cve', []))
+                ])
 
 # Funcion para obtener las direcciones IP en archivo TXT
 def createTXT(dataAssets, folderPath, filename):
@@ -211,9 +219,9 @@ def createTXT(dataAssets, folderPath, filename):
         file.write("Name, IP Address\n")
         for category, assets in dataAssets.items():
             for asset in assets:
-                if asset['ip']:
-                    for ip in asset['ip']:
-                        file.write(f"{asset['name']}, {ip}\n")
+                if asset.get('ip'):
+                    for ip in asset.get('ip', []):
+                        file.write(f"{asset.get('name', '')}, {ip}\n")
 
 # Funcion para obtener datos de archivo txt
 def get_info_txt():
@@ -260,13 +268,14 @@ if __name__ == "__main__":
         print("1. Proceso de obtencion de activos de GLPI")
         assetsData = iglpiapi.interGLPIAPI(neceInfo['urlGLPI'], neceInfo['appTokenGLPI'], neceInfo['userToken'], categories)
         print(assetsData)
-        #print("2. Proceso de obtencion de direcciones Ip en base a las direcciones MAC")
-        #ip = ipScan.ipScanner(assetsData, neceInfo['networkAssets'], categories)
-        #print(ip)
+        print("2. Proceso de obtencion de direcciones Ip en base a las direcciones MAC")
+        ip = ipScan.ipScanner(assetsData, neceInfo['networkAssets'], categories)
+        print(ip)
         print("3. Proceso de obtencion de CVEs")
         cveData = iopenCVEapi.interopenCVEAPI(assetsData, neceInfo['openCVEURL'], neceInfo['usernameOpenCVE'], neceInfo['passOpenCVE'], categories)
         print(cveData)
-        data = intDataCVE(assetsData, cveData, categories)
+        data = intDataCVE(ip, cveData, categories)
+        print(data)
         print("4. Impresion de los datos obtenidos en un archivo PDF")
         iPDF.informePDF(data, folderPath, "Informe_Activos_MicroRed")
         createCSV(data, folderPath, "Activos_MicroRed.csv")

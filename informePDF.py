@@ -5,13 +5,9 @@ Autores: Diego Narvaez, Fabricio Malla
 Este es el modulo ayuda en la impresion de los datos obtenidos en un archivo PDF
 """
 from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from reportlab.lib.utils import ImageReader
+from reportlab.platypus import SimpleDocTemplate, LongTable, TableStyle, Paragraph, Spacer
 from reportlab.lib import colors
-from reportlab.platypus import Table, TableStyle
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfbase.pdfmetrics import stringWidth
+from reportlab.lib.styles import getSampleStyleSheet
 import datetime
 import os
 
@@ -29,50 +25,41 @@ def wrap_text(text, max_chars):
     lines.append(current_line.strip())
     return '\n'.join(lines)
 
-def addHeader(c):
-    width, height = letter
-    image_path = 'logoUCuenca.png'
-    image = ImageReader(image_path)
-    c.drawImage(image, 50, 740, width=100, height=50)
-    
-    header_text = "Universidad de Cuenca"
-    sub_header_text = "Informe de Activos, Laboratorio de MicroRed"
-    text_width = stringWidth(header_text, 'Helvetica', 14)
-    sub_text_width = stringWidth(sub_header_text, 'Helvetica', 12)
-    
-    text_x = 150 + (width - 150 - text_width) / 2
-    sub_text_x = 150 + (width - 150 - sub_text_width) / 2
-    
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(text_x, 760, header_text)
-    c.setFont("Helvetica", 12)
-    c.drawString(sub_text_x, 745, sub_header_text)
-    
-    c.line(50, 730, width - 50, 730)
+def header(canvas, doc):
+    """ Crea un encabezado para cada página """
+    canvas.saveState()
+    canvas.setFont('Helvetica-Bold', 16)
+    canvas.drawCentredString(letter[0] / 2, letter[1] - 30, "Universidad de Cuenca")
+    canvas.setFont('Helvetica', 12)
+    canvas.drawCentredString(letter[0] / 2, letter[1] - 50, "Informe de Activos, Laboratorio de MicroRed")
+    canvas.line(50, letter[1] - 60, letter[0] - 50, letter[1] - 60)
+    canvas.restoreState()
 
-def draw_table(c, y_position, data_assets, top_margin=50, bottom_margin=50):
-    width, height = letter
-    c.setFont("Helvetica-Bold", 12)
-    colWidths = [0.04 * width, 0.10 * width, 0.14 * width, 0.1 * width, 0.18 * width, 0.13 * width, 0.15 * width]
+def informePDF(data_assets, folderPath, filename):
+    fecha = datetime.date.today().isoformat()
+    fullPath = os.path.join(folderPath, f"{filename}_{fecha}.pdf")
+    doc = SimpleDocTemplate(fullPath, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
+
+    Story = []
+    styles = getSampleStyleSheet()
+    colWidths = [0.04 * letter[0], 0.10 * letter[0], 0.14 * letter[0], 0.1 * letter[0], 0.18 * letter[0], 0.13 * letter[0], 0.15 * letter[0]]
 
     for category, assets in data_assets.items():
-        c.drawString(50, y_position, category)
-        y_position -= 30
-
+        Story.append(Paragraph(category, styles['Heading2']))
         table_data = [['ID', 'Name', 'Model', 'Type', 'MAC Addresses', 'IP Addresses', 'CVEs']]
         for asset in assets:
             row = [
-                asset['id'],
-                wrap_text(asset['name'], 12),
-                wrap_text(asset['model'], 15),
-                wrap_text(asset['type'], 12),
-                '\n'.join(asset['mac']),
-                '\n'.join(asset['ip']),
-                '\n'.join(asset['cve'])
+                asset.get('id', ''), 
+                wrap_text(asset.get('name', ''), 12),  
+                wrap_text(asset.get('model', ''), 15), 
+                wrap_text(asset.get('type', ''), 12),  
+                '\n'.join(asset.get('mac', [])),  
+                '\n'.join(asset.get('ip', [])),  
+                '\n'.join(asset.get('cve', []))  
             ]
             table_data.append(row)
 
-        table = Table(table_data, colWidths=colWidths)
+        table = LongTable(table_data, colWidths=colWidths)
         table.setStyle(TableStyle([
             ('GRID', (0,0), (-1,-1), 1, colors.black),
             ('BACKGROUND', (0,0), (-1,0), colors.lightgrey),
@@ -81,22 +68,7 @@ def draw_table(c, y_position, data_assets, top_margin=50, bottom_margin=50):
             ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
             ('FONTSIZE', (0,0), (-1,-1), 10),
         ]))
+        Story.append(table)
+        Story.append(Spacer(1, 12))
 
-        needed_height = table.wrap(width-100, height)[1]
-        if y_position - needed_height < bottom_margin:
-            c.showPage()
-            addHeader(c) 
-            y_position = height - top_margin 
-        table.drawOn(c, 50, y_position - needed_height)
-        y_position -= (needed_height + 20)
-
-
-def informePDF(data_assets, folderPath, filename):
-    fecha = datetime.date.today()
-    fullPath = os.path.join(folderPath, f"{filename}_{fecha}.pdf")
-    c = canvas.Canvas(fullPath, pagesize=letter)
-    addHeader(c)
-    y_position = 700
-    draw_table(c, y_position, data_assets)
-    c.save()
-
+    doc.build(Story, onFirstPage=header, onLaterPages=header)
