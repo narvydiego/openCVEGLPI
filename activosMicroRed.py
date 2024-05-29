@@ -178,6 +178,15 @@ data3 = {
             'cve': ['CVE-2015-2822', 'CVE-2015-2823']
         },
         {
+            'id': '303',
+            'name': 'HMI Touch Screen',
+            'model': 'Siemens SIMATIC HMI',
+            'type': 'HMI',
+            'mac': ['00:A0:C9:60:11:22'],
+            'ip': ['192.168.1.50'],
+            'cve': ['CVE-2015-2822', 'CVE-2015-2823']
+        },
+        {
             'id': '302',
             'name': 'Impresora de Etiquetas Industrial',
             'model': 'Zebra ZT230',

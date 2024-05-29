@@ -69,10 +69,12 @@ def informePDF(data_assets, folderPath, filename):
     Story = []
     styles = getSampleStyleSheet()
     colWidths = [0.04 * letter[0], 0.10 * letter[0], 0.14 * letter[0], 0.1 * letter[0], 0.18 * letter[0], 0.13 * letter[0], 0.15 * letter[0]]
-
+    Story.append(Paragraph("Activos de Laboratorio de MicroRed", styles['Heading1']))
+    modelCVEDict = {}
     for category, assets in data_assets.items():
         Story.append(Paragraph(category, styles['Heading2']))
-        table_data = [['ID', 'Name', 'Model', 'Type', 'MAC Addresses', 'IP Addresses', 'CVEs']]
+        #table_data = [['ID', 'Name', 'Model', 'Type', 'MAC Addresses', 'IP Addresses', 'CVEs']]
+        table_data = [['ID', 'Name', 'Model', 'Type', 'MAC Addresses', 'IP Addresses']]
         for asset in assets:
             row = [
                 asset.get('id', ''), 
@@ -80,11 +82,14 @@ def informePDF(data_assets, folderPath, filename):
                 wrap_text(asset.get('model', ''), 15), 
                 wrap_text(asset.get('type', ''), 12),  
                 '\n'.join(asset.get('mac', [])),  
-                '\n'.join(asset.get('ip', [])),  
-                '\n'.join(asset.get('cve', []))  
+                '\n'.join(asset.get('ip', [])) 
+                #'\n'.join(asset.get('cve', []))  
             ]
             table_data.append(row)
-
+            model =asset.get('model', '')
+            cve = asset.get('cve', [])
+            if model not in modelCVEDict and cve != []:
+                modelCVEDict[model] = cve
         table = LongTable(table_data, colWidths=colWidths)
         table.setStyle(TableStyle([
             ('GRID', (0,0), (-1,-1), 1, colors.black),
@@ -96,5 +101,10 @@ def informePDF(data_assets, folderPath, filename):
         ]))
         Story.append(table)
         Story.append(Spacer(1, 12))
-
+        
+    Story.append(Paragraph("Listado de Activos con CVE encontrados en OpenCVE", styles['Heading1']))
+    for model, cves in modelCVEDict.items():
+        Story.append(Paragraph(model, styles['Heading2']))
+        cve_text = ', '.join(cves)
+        Story.append(Paragraph(cve_text, styles['BodyText']))
     doc.build(Story, onFirstPage=header, onLaterPages=header)
