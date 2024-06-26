@@ -1,7 +1,7 @@
-urlGLPI=http://192.168.222.57/apirest.php
-appTokenGLPI=waXuGxupcV5xpHJbLu81bIgzypHdgIQfYJSS8qmZ
-userToken=PMujBIXnMJvnHyyqcmd0u17whdihRatbtHCCZ5TM
-networkAssets=192.168.222.0/24,192.168.244.0/24
-openCVEURL=https://www.opencve.io/api/cve?search=
-usernameOpenCVE=diego.narvaezp
-passOpenCVE=NarDie5716
+urlGLPI=http://192.168.xx.xx/apirest.php
+appTokenGLPI=xxxxx
+userToken=xxxxxxx
+networkAssets=192.168.xxx.0/24,192.168.xxx.0/24
+openCVEURL=xxxxxxxx
+usernameOpenCVE=xxxxxxx
+passOpenCVE=xxxxxxx
